@@ -1,3 +1,28 @@
+import os
+import librosa
+import matplotlib.pyplot as plt
+import librosa.display
+import struct
+import pandas as pd
+import numpy as np
+import ffmpeg
+import pydub
+import tensorflow as tf
+
+import wave
+from scipy.io import wavfile
+import soundfile as sf
+
+
+import io
+import cv2  
+
+
+from PIL import Image
+
+
+from sklearn.preprocessing import normalize
+
 #Делаем запись файла:
 fs = 44100
 seconds = 30
