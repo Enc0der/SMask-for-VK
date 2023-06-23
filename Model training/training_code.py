@@ -201,9 +201,6 @@ CV_pitch_df = pd.DataFrame(CV_pitch_name)
 
 CV_pitch_df.to_csv('/Users/monglels/Desktop/TinySOL/pitchName.csv')
 
-type(X_train[1])
-X_train[1].shape
-
 pitch_model = Sequential()
 
 pitch_model.add(Conv2D(24, kernel_size=(3, 3), activation='linear', input_shape=(spectrogram_shape), padding='same'))
@@ -229,25 +226,6 @@ pitch_model.summary()
 
 pitch_train = pitch_model.fit(X_train, y_train_hot, batch_size=batch, epochs=10, verbose=1,
                               validation_data=(X_test, y_test_hot))
-
-# рисуем метрику
-fig = plt.figure()
-plt.subplot(2, 1, 1)
-plt.plot(pitch_train.history['accuracy'])
-plt.plot(pitch_train.history['val_accuracy'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='lower right')
-plt.subplot(2, 1, 2)
-plt.plot(pitch_train.history['loss'])
-plt.plot(pitch_train.history['val_loss'])
-plt.title('model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper right')
-plt.tight_layout()
-fig
 
 # получаем предсказание
 pred = pitch_model.predict(X_test)
