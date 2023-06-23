@@ -1,14 +1,12 @@
-import matplotlib
-import matplotlib.pyplot as plt
 import soundfile as sf
 import io
-from six.moves.urllib.request import urlopen
+#from six.moves.urllib.request import urlopen
 from sklearn.preprocessing import normalize
 import re
 import sqlalchemy
 from sqlalchemy import create_engine
 import config
-import psycopg2
+#import psycopg2
 from sqlalchemy.dialects import postgresql
 import urllib.parse
 from keras.layers import LeakyReLU
@@ -50,7 +48,6 @@ def createSpectrogram_pitch(file_name):
 
         # Конвертируем аудио массив в 'Constant-Q transform'. 86 bins are created to take pitches form C1 to C#8
         conQ_spec = np.abs(librosa.cqt(y, sr=sr))
-
         librosa.display.specshow(conQ_spec, y_axis='cqt_note')
         buf = io.BytesIO()
         fig.savefig(buf, format="png", dpi=(56 / 5))
