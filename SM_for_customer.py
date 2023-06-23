@@ -15,7 +15,7 @@ import soundfile as sf
 
 
 import io
-import cv2  
+import cv2
 
 
 from PIL import Image
