@@ -1,19 +1,19 @@
-fs = 44100  # Частота дискретизации
-seconds = 30  # Продолжительность записи
+#Делаем запись файла:
+fs = 44100
+seconds = 30
 scale_file = sd.rec(int(seconds * fs), samplerate=fs, channels=1)
-sd.wait()  # Дождитесь окончания записи
+sd.wait()
 
 sf.write('input_file.wav', scale_file, fs)
 
-#  Делим его на мелкие файлы по милисекундно:
+#Делим его на мелкие файлы по милисекундам:
+#учитывая среднюю скорость смены нот, оптимальная длина файла =250 мс:
 
 
 y, sr = librosa.load('/Users/monglels/Desktop/SymphonicMasks/test_file.wav')
 S = librosa.stft(y, center=False)
 secs = librosa.get_duration(S=S, sr=sr)
-
 secs = round(secs * 4)
-secs
 
 from pydub import AudioSegment
 
@@ -22,12 +22,10 @@ k = 0
 df_file_paths = pd.DataFrame(columns=['Paths'])
 names = []
 for i in range(secs):
-    t1 = count * 250  # Works in milliseconds
-    t2 = (count + 1) * 250  # минимальное деление- 16е в темпе 60
+    t1 = count * 250
+    t2 = (count + 1) * 250
     newAudio = AudioSegment.from_wav('/Users/monglels/Desktop/SymphonicMasks/test_file.wav')
     newAudio = newAudio[t1:t2]
-    # name= '/Users/monglels/Desktop/SymphonicMasks/Splited_input_files/newSong'
-    # for k in range(secs):
 
     char = str(k)
     name = str('/Users/monglels/Desktop/SymphonicMasks/Splited_input_files/newSong' + char + '.wav')
@@ -46,15 +44,14 @@ import psycopg2
 
 from sqlalchemy.dialects import postgresql
 import urllib.parse
-
 urllib.parse.quote_plus('U90y83tw523YEx5q')
+
 import sqlalchemy
 from sqlalchemy import create_engine
 import config
 import psycopg2
 
 from sqlalchemy import engine
-# Import this library to help in reading the spectrogram column.
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import URL
 
@@ -96,7 +93,7 @@ def createSpectrogram_pitch(file_name):
 
         mfccs_norm = normalize(img, axis=0, norm='max')
 
-        # закрываем изображения чтобы не показывались в течение цикла
+
         plt.close()
         fig.clf()
         plt.close(fig)
@@ -107,7 +104,7 @@ def createSpectrogram_pitch(file_name):
         print("Create spectrogram failure:", file_name)
         return None
 
-        # Возвращает спектрограмму
+
     return mfccs_norm
 
 
@@ -115,7 +112,7 @@ spectrograms_pitch = []
 
 for i in range(len(df_file_paths)):
 
-    # Указываем файл с адресами для функции спектрограммы
+
     file_name = df_file_paths.loc[i, "Paths"]
 
     data1 = createSpectrogram_pitch(file_name)
@@ -125,11 +122,6 @@ for i in range(len(df_file_paths)):
         print('current processing iteration', i)
 
 spectrograms_pitch
-
-#  Проводим через функцию все файлы:
-
-
-'''This python script includes function, predict_pitch'''
 
 # создаем функцию для предсказания высоты
 global mfccs_norm
@@ -179,7 +171,7 @@ def predict_pitch(input_audioFile):
 
     pitch_scalar = np.argmax(pitch_result, axis=None, out=None)
 
-    # вынимаем значени высоты из csv и трансформируем в список
+    # вынимаем значени высоты из csv и конвертируем в список
     pitch_Name_df = pd.read_csv('/Users/monglels/Desktop/TinySOL/pitchName.csv')
     pitch_name_list = pitch_Name_df['0'].tolist()
 
@@ -195,13 +187,6 @@ for i in range(secs):
     input_audioFile = df_file_paths.iloc[i]['Paths']
     predict_pitch(input_audioFile)
 
-# Проводим через функцию все файлы:
-
-
-# массив всейго файла:
-notes
-
-# Фильтруем каждый аудиофайл согласно требуемой ноте:
 
 
 from scipy import stats
@@ -219,7 +204,7 @@ for i in range(len(df_file_paths)):
     file_path = df_file_paths.loc[i, 'Paths']
 
     sr, y = wavfile.read(file_path)  # загрузили файл
-    time, frequency, confidence, activation = crepe.predict(y, sr, viterbi=True)  # проходим его с crepe
+    time, frequency, confidence, activation = crepe.predict(y, sr, viterbi=True)  # проводим его с crepe
     ee = time, frequency, confidence, activation
     df = pd.DataFrame(ee)
     df.to_csv('file2.csv', index=True
@@ -248,13 +233,13 @@ for i in range(len(df_file_paths)):
     if duration != 0.25:
         y, sr = librosa.load(file_path)
 
-        if duration < 0.25:  # ускоряем
+        if duration < 0.25:  # растягиваем
             x = duration
             x1 = 0.25 - duration
             x2 = 0.25 / x
             nnew = librosa.effects.time_stretch(y, rate=x * x2)
 
-        if duration > 0.25:  # замедляем
+        if duration > 0.25:  # сжимаем
             x = duration - 0.25
             x1 = x / 0.682545453453
             nnew = librosa.effects.time_stretch(y, rate=x * x1)
