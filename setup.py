@@ -143,7 +143,7 @@ setup(
 {%- endif %}
     packages=find_packages("src"),
     package_dir={"": "src"},
-    py_modules=[path.stem for path in Path("src").glob("*.py")],
+    py_modules=[path.stem for path in Path("{{cookiecutter.repo_name}}/src").glob("*.py")],
     include_package_data=True,
     zip_safe=False,
     classifiers=[
@@ -256,7 +256,7 @@ setup(
     cmdclass={"build_ext": OptionalBuildExt},
 {%- endif %}
 {%- if cookiecutter.c_extension_support == "cffi" %}
-    cffi_modules=[f"{path}:ffi" for path in Path("src").glob("**/_*_build.py")],
+    cffi_modules=[f"{path}:ffi" for path in Path("{{cookiecutter.repo_name}}/src").glob("**/_*_build.py")],
 {%- else %}
     ext_modules=[
         Extension(
@@ -268,7 +268,7 @@ setup(
 {%- endif %}
             include_dirs=[str(path.parent)],
         )
-        for path in Path("src").glob(
+        for path in Path("{{cookiecutter.repo_name}}/src").glob(
 {%- if cookiecutter.c_extension_support == "cython" %}"**/*.pyx" if Cython else "**/*.c"
 {%- else %}"**/*.c"{% endif %})
     ],
