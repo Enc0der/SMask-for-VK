@@ -10,7 +10,7 @@ sf.write('input_file.wav', scale_file, fs)
 #учитывая среднюю скорость смены нот, оптимальная длина файла =250 мс:
 
 
-y, sr = librosa.load('/Users/monglels/Desktop/SymphonicMasks/test_file.wav')
+y, sr = librosa.load('input_file.wav')
 S = librosa.stft(y, center=False)
 secs = librosa.get_duration(S=S, sr=sr)
 secs = round(secs * 4)
@@ -24,7 +24,7 @@ names = []
 for i in range(secs):
     t1 = count * 250
     t2 = (count + 1) * 250
-    newAudio = AudioSegment.from_wav('/Users/monglels/Desktop/SymphonicMasks/test_file.wav')
+    newAudio = AudioSegment.from_wav('input_file.wav')
     newAudio = newAudio[t1:t2]
 
     char = str(k)

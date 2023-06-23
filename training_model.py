@@ -1,3 +1,26 @@
+import os
+import librosa
+import matplotlib.pyplot as plt
+import librosa.display
+import struct
+import pandas as pd
+import numpy as np
+import ffmpeg
+
+
+import wave
+from scipy.io import wavfile
+import soundfile as sf
+
+
+import io
+import cv2
+
+
+from PIL import Image
+
+from sklearn.preprocessing import normalize
+
 # Извлекаем аудиофайлы для обучения и конвертируем их в спектрограммы для  обучения модели:
 
 
@@ -63,16 +86,16 @@ def createSpectrogram_pitch(file_name):
         plt.close(fig)
         plt.close('all')
 
-    eexcept:
+    except:
     # Выводим это сообщение если загрузить файлы не удалось:
 
-    print("Create spectrogram failure:", file_name)
-    return None
+        print("Create spectrogram failure:", file_name)
+        return None
 
     # Возвращаем спектрограмму
 
 
-return mfccs_norm
+    return mfccs_norm
 
 # прогоняем через цикл все файлы:
 spectrograms_pitch = []
