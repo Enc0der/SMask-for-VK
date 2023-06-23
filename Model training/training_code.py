@@ -1,12 +1,12 @@
 import soundfile as sf
 import io
-#from six.moves.urllib.request import urlopen
+from six.moves.urllib.request import urlopen
 from sklearn.preprocessing import normalize
 import re
 import sqlalchemy
 from sqlalchemy import create_engine
 import config
-#import psycopg2
+import psycopg2
 from sqlalchemy.dialects import postgresql
 import urllib.parse
 from keras.layers import LeakyReLU
@@ -150,7 +150,7 @@ url_object = sqlalchemy.engine.url.URL.create(
 engine = create_engine(url_object)
 
 pitchDF_Final.to_sql('Pitch_Spectrogram_Table', engine, if_exists='replace',
-                     ######use relace if tables are already in your DB
+           
                      method=None, dtype={'Spectrogram': postgresql.ARRAY(sqlalchemy.types.REAL, dimensions=2)}
                      )
 
@@ -242,14 +242,3 @@ pitch_model.save("/Users/monglels/Desktop/TinySOL/Result_models/pitch_model.h5")
 # save in binary format,wb replace old file with new one
 with open('/Users/monglels/Desktop/TinySOL/Result_models/PKL_trained_pitch_model.pkl', 'wb') as pitch_model_file:
     pickle.dump(pitch_model, pitch_model_file)
-
-
-
-
-
-
-
-
-
-
-
