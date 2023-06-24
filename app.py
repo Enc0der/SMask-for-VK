@@ -9,7 +9,6 @@ import ffmpeg
 import pydub
 from sqlalchemy.dialects import postgresql
 import urllib.parse
-urllib.parse.quote_plus('U90y83tw523YEx5q')
 import config
 import psycopg2
 from sqlalchemy import engine
@@ -46,8 +45,6 @@ s3_client = boto3.client(
     aws_access_key_id='opupsuKWKbmnc6cAeoQubP',
     aws_secret_access_key='guUYUDdCAgAJp757thbFLaqd2Y9H7XefW8P6FkbwLcFM',
 )
-
-
 
 session = boto3.session.Session()
 s3_client = session.client(
@@ -323,6 +320,7 @@ for i in range(len(file_paths_list)):
     k += 1
 
 combined_wav = AudioSegment.empty()
+
 for i in range(len(df_new_file_paths)):
     s3_client.download_file('newsplitedfiles', final_names[i], 'newinput1.wav')
 
