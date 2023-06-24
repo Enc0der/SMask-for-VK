@@ -1,71 +1,22 @@
-{
-    "full_name": "Aleksandra Topalidi",
-    "email": "topalidia@gmail.com",
-    "website": "",
-    "project_name": "SymphonicMasks_for_VK",
-    "repo_name": "python-{{ cookiecutter.project_name|lower|replace(' ','-') }}",
-    "repo_hosting": ["github.com"],
-    "repo_hosting_domain": "{{ cookiecutter.repo_hosting if cookiecutter.repo_hosting != 'other domain not listed' else '' }}",
-    "repo_username": "Enc0der",
-    "repo_main_branch": "main",
-    "package_name": "{{ cookiecutter.project_name|lower|replace(' ','_')|replace('-','_') }}",
-    "distribution_name": "{{ cookiecutter.package_name|replace('_','-') }}",
-    "project_short_description": "An example package. Generated with cookiecutter-pylibrary.",
-    "release_date": "25.06",
-    "year_from": "{% now 'utc', '%Y' %}",
-    "year_to": "{% now 'utc', '%Y' %}",
-    "version": "0.0.0",
-    "version_manager": ["bump2version", "tbump"],
-    "license": [
-        "no"
-    ],
-    "c_extension_support": ["no"],
-    "c_extension_optional": ["no"],
-    "c_extension_module": "_{{ cookiecutter.package_name }}",
-    "c_extension_function": "longest",
-    "test_matrix_separate_coverage": ["no"],
-    "setup_py_uses_setuptools_scm": ["no"],
-    "pypi_badge": [ "no"],
-    "pypi_disable_upload": ["no],
-    "allow_tests_inside_package": [ "yes"],
-    "pre_commit": ["yes"],
-    "formatter_quote_style": [
-        
-        "single"
-    ],
-    "command_line_interface": ["plain"],
-    "command_line_interface_bin_name": "{{ cookiecutter.distribution_name }}",
-    "coveralls": [ "yes"],
-    "codecov": ["yes"],
-    "scrutinizer": ["no],
-    "codacy" : ["no"],
-    "codacy_projectid" : "[Get ID from https://app.codacy.com/gh/{{ cookiecutter.repo_username }}/{{ cookiecutter.repo_name }}/settings]",
-    "codeclimate" : ["no"],
-    "sphinx_docs": ["yes"],
-    "sphinx_theme": [ "pydata-sphinx-theme"],
-    "sphinx_doctest": ["no"],
-    "sphinx_docs_hosting": "https://{{ cookiecutter.repo_name|replace('.', '') }}.readthedocs.io/",
-    "github_actions": ["yes"],
-    "github_actions_osx": ["yes"],
-    "github_actions_windows": ["yes"],
-    "__c_extension_optional_options": {"yes":  true, "no":  false},
-    "__test_matrix_separate_coverage_options": {"yes":  true, "no":  false},
-    "__setup_py_uses_setuptools_scm_options": {"yes":  true, "no":  false},
-    "__pypi_badge_options":  {"yes":  true, "no":  false},
-    "__pypi_disable_upload_options": {"yes":  true, "no":  false},
-    "__allow_tests_inside_package_options":  {"yes":  true, "no":  false},
-    "__coveralls_options":  {"yes":  true, "no":  false},
-    "__codecov_options": {"yes":  true, "no":  false},
-    "__scrutinizer_options":  {"yes":  true, "no":  false},
-    "__codacy_options": {"yes":  true, "no":  false},
-    "__codeclimate_options":  {"yes":  true, "no":  false},
-    "__sphinx_docs_options": {"yes":  true, "no":  false},
-    "__sphinx_doctest_options":  {"yes":  true, "no":  false},
-    "__github_actions_options":  {"yes":  true, "no":  false},
-    "__github_actions_osx_options": {"yes":  true, "no":  false},
-    "__github_actions_windows_options":  {"yes":  true, "no":  false},
-    "_extensions": [
-        "pylibrary.JsonQuoteExtension",
-        "jinja2_time.TimeExtension"
-    ]
-}
+s3_client = boto3.client(
+    's3',
+    region_name='ru-msk',
+    aws_access_key_id='opupsuKWKbmnc6cAeoQubP',
+    aws_secret_access_key='guUYUDdCAgAJp757thbFLaqd2Y9H7XefW8P6FkbwLcFM',
+)
+
+session = boto3.session.Session()
+s3_client = session.client(
+    service_name='s3',
+    endpoint_url='https://hb.bizmrg.com',
+    aws_access_key_id='opupsuKWKbmnc6cAeoQubP',
+    aws_secret_access_key='guUYUDdCAgAJp757thbFLaqd2Y9H7XefW8P6FkbwLcFM'
+)
+
+url_object = sqlalchemy.engine.url.URL.create(
+    "postgresql+psycopg2",
+    username="Squirrel_Emma",
+    password="U90y83tw523YEx5q",  # plain (unescaped) text
+    host="85.192.32.89",
+    database="PostgreSQL-7599",
+)
