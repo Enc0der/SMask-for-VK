@@ -283,30 +283,31 @@ for i in range(len(file_paths_list)):
     if the_closet_note > right_note:
         new1_fr = (right_note + new_fr) / right_note
         sr = round(44100 * new1_fr)
-    if the_closet_note < right_note:
+    elif the_closet_note < right_note:
         new1_fr = (right_note - new_fr) / right_note
         sr = round(44100 * new_fr)
     else:
-        continue
+        sr=sr
 
     duration = librosa.get_duration(filename=file_name)
+    y, sr = librosa.load(file_name)
     if duration != 0.25:
-        y, sr = librosa.load(file_name)
-
         if duration < 0.25:
             x = duration
             x1 = 0.25 - duration
             x2 = 0.25 / x
             nnew = librosa.effects.time_stretch(y, rate=x * x2)
 
-        if duration > 0.25:
+        elif duration > 0.25:
             x = duration - 0.25
             x1 = x / 0.682545453453
             nnew = librosa.effects.time_stretch(y, rate=x * x1)
         fs = sr
+    else:
+        nnew=y
 
     name = 'output_final.wav'
-    newAudio = write(name, sr, y)
+    newAudio = write(name, sr, nnew)
 
     char = str(k)
     test_bucket_name = 'newsplitedfiles'
@@ -318,15 +319,16 @@ for i in range(len(file_paths_list)):
 
 
     k += 1
+    
+combined_wav = AudioSegment.empty()                                                          
+for i in range(len(final_names)):
+    
+    s3_client.download_file('newsplitedfiles',final_names[i], 'joinedoutput.wav')
+    
+    file_name = 'joinedoutput.wav'
+    
 
-combined_wav = AudioSegment.empty()
-
-for i in range(len(df_new_file_paths)):
-    s3_client.download_file('newsplitedfiles', final_names[i], 'newinput1.wav')
-
-    file_name = 'newinput1.wav'
-
-    order = AudioSegment.from_wav(file_name)
+    order = AudioSegment.from_wav(file_name) 
     combined_wav += order
 
 combined_wav.export("newinput1.wav", format="wav")
