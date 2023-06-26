@@ -63,7 +63,7 @@ sd.wait()
 sf.write('input_file.wav', scale_file, fs)
 
 
-y, sr = librosa.load('/Users/monglels/Desktop/SymphonicMasks/test_file.wav')
+y, sr = librosa.load('input_file.wav')
 S = librosa.stft(y, center=False)
 secs = librosa.get_duration(S=S, sr=sr)
 
@@ -79,7 +79,7 @@ names = []
 for i in range(secs):
     t1 = count * 250
     t2 = (count + 1) * 250
-    newAudio = AudioSegment.from_wav('/Users/monglels/Desktop/SymphonicMasks/test_file.wav')
+    newAudio = AudioSegment.from_wav('input_file.wav')
     newAudio = newAudio[t1:t2]
 
     name = 'output.wav'
