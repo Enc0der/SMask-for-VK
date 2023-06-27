@@ -10,7 +10,6 @@ import pydub
 from sqlalchemy.dialects import postgresql
 import urllib.parse
 import config
-import psycopg2
 from sqlalchemy import engine
 import tensorflow as tf
 from io import StringIO
