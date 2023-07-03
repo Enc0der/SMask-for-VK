@@ -1,11 +1,10 @@
 import soundfile as sf
 import io
-from six.moves.urllib.request import urlopen
+import cv2
 from sklearn.preprocessing import normalize
-import re
+from psycopg2.extensions import AsIs
 import sqlalchemy
 from sqlalchemy import create_engine
-import config
 import psycopg2
 from sqlalchemy.dialects import postgresql
 import urllib.parse
@@ -15,12 +14,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 import keras
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D, Activation
+from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
 from keras.utils import to_categorical
 import numpy as np
 import pickle
+import librosa
+import matplotlib as plt
 
-df_local_file_paths = pd.read_csv('/Users/monglels/Desktop/Local_File_Path.csv', delimiter=';')
+df_local_file_paths = pd.read_csv('/Users/monglels/Desktop/Local_File_Path.csv',
+                                  delimiter=';')
 
 df_local_file_paths['Local_File_Path'] = "/Users/monglels/Desktop/TinySOL" + '/' + df_local_file_paths[
     'Local_File_Path'].astype(str)
@@ -42,33 +44,23 @@ librosa.display.specshow(conQ_spec, y_axis='cqt_note')
 
 # Создаем функцию для конвертирования в спектрограмму:
 def createSpectrogram_pitch(file_name):
-    try:
-        fig = plt.figure(figsize=[1.5, 10])
-        y, sr = sf.read(file_name, dtype='float32')
 
-        # Конвертируем аудио массив в 'Constant-Q transform'. 86 bins are created to take pitches form C1 to C#8
-        conQ_spec = np.abs(librosa.cqt(y, sr=sr))
-        librosa.display.specshow(conQ_spec, y_axis='cqt_note')
-        buf = io.BytesIO()
-        fig.savefig(buf, format="png", dpi=(56 / 5))
-        buf.seek(0)
-        img_arr = np.frombuffer(buf.getvalue(), dtype=np.uint8)
-        buf.close()
-        img = cv2.imdecode(img_arr, 1)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    fig = plt.figure(figsize=[1.5, 10])
+    y, sr = sf.read(file_name, dtype='float32')
 
-        # нормализуем
-        mfccs_norm = normalize(img, axis=0, norm='max')
+    # Конвертируем аудио массив в 'Constant-Q transform'. 86 bins are created to take pitches form C1 to C#8
+    conQ_spec = np.abs(librosa.cqt(y, sr=sr))
+    librosa.display.specshow(conQ_spec, y_axis='cqt_note')
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=(56 / 5))
+    buf.seek(0)
+    img_arr = np.frombuffer(buf.getvalue(), dtype=np.uint8)
+    buf.close()
+    img = cv2.imdecode(img_arr, 1)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        plt.close()
-        fig.clf()
-        plt.close(fig)
-        plt.close('all')
-    except:
-
-        print("Create spectrogram failure:", file_name)
-        return None
-
+    # нормализуем
+    mfccs_norm = normalize(img, axis=0, norm='max')
     return mfccs_norm
 
 
@@ -125,8 +117,6 @@ pitchDF_Final = pitchDf_merged.drop(['Path',
 pitchDF_Final.rename(columns={'Local file path_y': 'File_Path'}, inplace=True)
 pitchDF_Final.to_csv('/Users/monglels/Desktop/TinySOL/pitchdf.csv')
 
-from psycopg2.extensions import register_adapter, AsIs
-
 
 def addapt_numpy_float32(numpy_float32):
     return AsIs(numpy_float32)
@@ -150,7 +140,7 @@ url_object = sqlalchemy.engine.url.URL.create(
 engine = create_engine(url_object)
 
 pitchDF_Final.to_sql('Pitch_Spectrogram_Table', engine, if_exists='replace',
-           
+
                      method=None, dtype={'Spectrogram': postgresql.ARRAY(sqlalchemy.types.REAL, dimensions=2)}
                      )
 
