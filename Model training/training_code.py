@@ -224,7 +224,6 @@ y_pred = [np.argmax(y, axis=None, out=None) for y in pred]
 y_actual = [np.argmax(y, axis=None, out=None) for y in y_test_hot]
 
 Pitch_results_df = pd.DataFrame({'Pred': y_pred, 'Actual': y_actual})
-Pitch_results_df
 
 # сохраняем тренированную модель
 pitch_model.save("/Users/monglels/Desktop/TinySOL/Result_models/pitch_model.h5")
