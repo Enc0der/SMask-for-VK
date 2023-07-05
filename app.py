@@ -27,7 +27,7 @@ s3_client = boto3.client(
     's3',
     region_name='ru-msk',
     aws_access_key_id='opupsuKWKbmnc6cAeoQubP',
-    aws_secret_access_key='guUYUDdCAgAJp757thbFLaqd2Y9H7XefW8P6FkbwLcFM',
+    aws_secret_access_key= config.aws_secret_access_key
 )
 
 session = boto3.session.Session()
@@ -35,7 +35,7 @@ s3_client = session.client(
     service_name='s3',
     endpoint_url='https://hb.bizmrg.com',
     aws_access_key_id='opupsuKWKbmnc6cAeoQubP',
-    aws_secret_access_key='guUYUDdCAgAJp757thbFLaqd2Y9H7XefW8P6FkbwLcFM'
+    aws_secret_access_key= config.aws_secret_access_key
 )
 
 
