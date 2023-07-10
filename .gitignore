@@ -1,6 +1,4 @@
-.env.test
-.env.prod
-.DS_Store
-echo/
 #Config
 config.py
+#settings.json
+settings.json
