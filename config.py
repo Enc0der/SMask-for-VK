@@ -1,2 +1,3 @@
-token = ''
-aws_secret_access_key='guUYUDdCAgAJp757thbFLaqd2Y9H7XefW8P6FkbwLcFM'
+TOKEN = '5919770894:AAFfq2Hd2oC9I3jKTAUXYvs91K4D0Y-Q9fU'
+
+aws_secret_access_key = 'guUYUDdCAgAJp757thbFLaqd2Y9H7XefW8P6FkbwLcFM'
