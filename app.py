@@ -1,3 +1,10 @@
+"""
+This script processes videos sent via Telegram, extracts the audio, splits it into smaller segments,
+performs pitch analysis on each segment, generates a modified audio file with adjusted pitch,
+and combines the modified audio with the original video to create a final video with modified audio.
+"""
+
+import json
 import moviepy.editor as mp
 from scipy.io.wavfile import write
 import boto3
@@ -6,7 +13,7 @@ import librosa
 import pandas as pd
 from io import StringIO
 import telebot
-import config
+# import config
 from pydub import AudioSegment
 import cv2
 from sklearn.preprocessing import normalize
@@ -18,26 +25,29 @@ import tensorflow as tf
 import io
 import matplotlib
 from moviepy.editor import VideoFileClip, AudioFileClip
+from config import TOKEN
 
-matplotlib.pyplot.switch_backend('Agg')
+# Load configuration settings from 'settings.json'
+with open('settings.json') as settings_file:
+    config = json.load(settings_file)
 
-bot = telebot.TeleBot(config.token)
-
+# Create an S3 client with provided credentials
 s3_client = boto3.client(
     's3',
-    region_name='ru-msk',
-    aws_access_key_id='opupsuKWKbmnc6cAeoQubP',
-    aws_secret_access_key= config.aws_secret_access_key
+    region_name=config['s3_client']['region_name'],
+    aws_access_key_id=config['s3_client']['aws_access_key_id'],
+    aws_secret_access_key=config['s3_client']['aws_secret_access_key'],
+    endpoint_url=config['s3_client']['endpoint_url']
 )
 
+# Set the backend for matplotlib
+matplotlib.pyplot.switch_backend('Agg')
+
+# Load Telegram bot token from config
+bot = telebot.TeleBot(TOKEN)
+
+# Create a boto3 session
 session = boto3.session.Session()
-s3_client = session.client(
-    service_name='s3',
-    endpoint_url='https://hb.bizmrg.com',
-    aws_access_key_id='opupsuKWKbmnc6cAeoQubP',
-    aws_secret_access_key= config.aws_secret_access_key
-)
-
 
 final_names = []
 notes = []
@@ -45,13 +55,19 @@ notes_list = []
 file_paths_list = []
 count = 1
 
-
+# Download pitch model from S3
 s3_client.download_file('symphonicmasks', 'pitch_model.h5', 'pitch_model.h5')
 pitch_model = tf.keras.models.load_model('pitch_model.h5')
 
 
 @bot.message_handler(content_types=['video'])
 def get_file(message):
+    """
+    Telegram bot handler for processing video files.
+
+    Args:
+        message: Telegram message object containing the video file.
+    """
     global file_name
     file_name = message.json['video']['file_name']
     file_info = bot.get_file(message.video.file_id)
@@ -69,6 +85,12 @@ def get_file(message):
 
 
 def prepare_file():
+    """
+    Prepare the input audio file by splitting it into smaller segments.
+
+    Uses librosa to load the audio, split it into segments of 250ms each,
+    and upload the segments to an S3 bucket for further processing.
+    """
     y, sr = librosa.load(r'input_audio_file.wav')
     S = librosa.stft(y, center=False)
     secs = librosa.get_duration(S=S, sr=sr)
@@ -100,7 +122,9 @@ def prepare_file():
 
 
 def create_file_paths_list():
-
+    """
+    Create a list of file paths in the S3 bucket containing the split audio segments.
+    """
     global result
     global file_paths_list
     for page in result:
@@ -121,7 +145,15 @@ def create_file_paths_list():
 
 
 def predict_pitch(input_audiofile):
+    """
+    Perform pitch analysis on the given audio file segment.
 
+    Uses librosa and a pre-trained pitch prediction model to analyze the pitch of the audio.
+    Saves the analysis results and generates a spectrogram image for visualization.
+
+    Args:
+        input_audiofile: Path to the audio file segment to analyze.
+    """
     global notes
     y, sr = librosa.load(input_audiofile)
     fig = plt.figure(figsize=[1.5, 10])
@@ -186,22 +218,34 @@ def predict_pitch(input_audiofile):
 
 def making_return_video():
 
+    """
+    Downloads audio files, performs processing, and combines them with a video file.
+    Finally, sends the finished video to a chatbot.
+    """
     k = 0
-    for i in range(len(file_paths_list)):
+    final_names = []
+    file_paths_list = []  # Assuming this list is defined somewhere in the code
 
-        s3_client.download_file('splitedinputfiles',
-                                file_paths_list[i], 'origin_input.wav')
+    for i in range(len(file_paths_list)):
+        # Download the audio file
+        s3_client.download_file('splitedinputfiles', file_paths_list[i], 'origin_input.wav')
+
+        # Load the audio file
         y, sr = librosa.load('origin_input.wav')
-        s3_client.download_file('symphonicmasks',
-                                'flutes_notes_frequencies.csv',
-                                'flutes_notes_frequencies.csv')
+
+        # Download the flute notes frequencies
+        s3_client.download_file('symphonicmasks', 'flutes_notes_frequencies.csv', 'flutes_notes_frequencies.csv')
+
+        # Read the flute notes frequencies file
         df_notes = pd.read_csv('flutes_notes_frequencies.csv', delimiter=';')
 
-        the_closet_note = notes_list[i]
+        # Find the closest note frequency
+        the_closet_note = notes_list[i]  # Assuming notes_list is defined somewhere in the code
         flute_items = df_notes['Frequency'].tolist()
         right_note = min(flute_items, key=lambda x: abs(x - the_closet_note))
         new_fr = abs(right_note - the_closet_note)
 
+        # Adjust the sample rate based on the closest note
         if the_closet_note > right_note:
             new1_fr = (right_note - new_fr) / right_note
             sr = round(22050 * new1_fr)
@@ -211,23 +255,44 @@ def making_return_video():
         else:
             sr = sr
 
+        # Write the filtered audio file
         char = str(k)
-        name = str('filtred_ splited_files' + char + '.wav')
+        name = str('filtred_splited_files' + char + '.wav')
         write(name, sr, y)
         k += 1
         final_names.append(name)
+
+    # Combine the filtered audio files
     combined_wav = AudioSegment.empty()
     for i in range(len(final_names)):
         order = AudioSegment.from_wav(final_names[i])
         combined_wav += order
+
+    # Export the combined audio as WAV
     combined_wav.export("final_audio.wav", format="wav")
+
+    # Load the input video file
     video_clip = VideoFileClip('input_video_file.mp4')
+
+    # Load the final audio file
     audio_clip = AudioFileClip('final_audio.wav')
+
+    # Set the audio of the video clip to the final audio
     final_clip = video_clip.set_audio(audio_clip)
-    final_clip.write_videofile('finished_video' + ".mp4")
+
+    # Write the final video file
+    final_clip.write_videofile('finished_video.mp4')
+
+    # Open the finished video file
     video = open(r'finished_video.mp4', 'rb')
+
+    # Send the video to the chatbot
     bot.send_video(mesglob.from_user.id, video)
+
+    # Close the video file
     video.close()
 
 
+# Start the bot's polling
 bot.infinity_polling()
+
