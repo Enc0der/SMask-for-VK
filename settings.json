@@ -1,22 +1,15 @@
-s3_client = boto3.client(
-    's3',
-    region_name='ru-msk',
-    aws_access_key_id='opupsuKWKbmnc6cAeoQubP',
-    aws_secret_access_key='guUYUDdCAgAJp757thbFLaqd2Y9H7XefW8P6FkbwLcFM',
-)
-
-session = boto3.session.Session()
-s3_client = session.client(
-    service_name='s3',
-    endpoint_url='https://hb.bizmrg.com',
-    aws_access_key_id='opupsuKWKbmnc6cAeoQubP',
-    aws_secret_access_key='guUYUDdCAgAJp757thbFLaqd2Y9H7XefW8P6FkbwLcFM'
-)
-
-url_object = sqlalchemy.engine.url.URL.create(
-    "postgresql+psycopg2",
-    username="Squirrel_Emma",
-    password="U90y83tw523YEx5q",  # plain (unescaped) text
-    host="85.192.32.89",
-    database="PostgreSQL-7599",
-)
+{
+    "s3_client": {
+        "region_name": "ru-msk",
+        "aws_access_key_id": "opupsuKWKbmnc6cAeoQubP",
+        "aws_secret_access_key": "guUYUDdCAgAJp757thbFLaqd2Y9H7XefW8P6FkbwLcFM",
+        "endpoint_url": "https://hb.bizmrg.com"
+    },
+    "db_connection": {
+        "driver": "postgresql+psycopg2",
+        "username": "Squirrel_Emma",
+        "password": "U90y83tw523YEx5q",
+        "host": "85.192.32.89",
+        "database": "PostgreSQL-7599"
+    }
+}
