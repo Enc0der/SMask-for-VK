@@ -1,6 +1,6 @@
 import sqlalchemy
 from sqlalchemy import create_engine
-from config import db_password
+import json
 import pandas as pd
 
 # Import dependencies
@@ -10,37 +10,48 @@ from sklearn.preprocessing import LabelEncoder
 
 import keras
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D, Activation
+from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
 from keras.utils import to_categorical
 from keras.layers.advanced_activations import LeakyReLU
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 # read data from Postgres Database
-engine = create_engine('postgresql://postgres:'+ db_password +'@localhost:5432/InstroPitch_DB')
+with open('settings.json') as settings_file:
+    config = json.load(settings_file)
+    print(config)
 
-notes_df = pd.read_sql_table('Notes_Spectrogram_Table',engine)
+url_object = sqlalchemy.engine.url.URL.create(
+
+    username=config['db_connection']['username'],
+    password=config['db_connection']['password'],
+    host='pgsql',
+    database=config['db_connection']['database'],
+    drivername=config['db_connection']['driver'],
+)
+# read data from Postgres Database
+engine = create_engine(url_object)
+
+notes_df = pd.read_sql_table('Notes_Spectrogram_Table', engine)
 # notes_df
 
 # Convert Spectrograms from list to ndarray
 notes_df['Spectrogram'] = notes_df['Spectrogram'].apply(lambda x: np.array(x))
 
 type(notes_df['Spectrogram'].iloc[0])
-numpy.ndarray
-MODEL - Neural Network
+
 
 # Create train and test data sets
 X_series = notes_df["Spectrogram"]
 y = notes_df["Note"]
 
 # Parameters
-channels = 1 # number of audio channels
+channels = 1  # number of audio channels
 spectrogram_shape = X_series[1].shape + (channels,)
 batch = spectrogram_shape[1]
 
 # Reshape X into size of spectrogram and convert to ndarray
-X = np.array([i.reshape( (spectrogram_shape) ) for i in X_series])
+X = np.array([i.reshape(spectrogram_shape) for i in X_series])
 
 # Encode pitches
 
@@ -60,9 +71,9 @@ y_train_hot = to_categorical(y_train)
 
 # Troubleshooting queries
 type(X_train[1])
-X_train[1].shape
-# X_train[1]
-(22, 128, 1)
+# X_train[1].shape
+# # X_train[1]
+# (22, 128, 1)
 
 # # Model
 # model = Sequential()
@@ -110,23 +121,24 @@ X_train[1].shape
 
 # Model
 fashion_model = Sequential()
-fashion_model.add(Conv2D(32, kernel_size=(3, 3),activation='linear',input_shape=(spectrogram_shape),padding='same'))
+fashion_model.add(Conv2D(32, kernel_size=(3, 3), activation='linear', input_shape=spectrogram_shape, padding='same'))
 fashion_model.add(LeakyReLU(alpha=0.1))
-fashion_model.add(MaxPooling2D((2, 2),padding='same'))
-fashion_model.add(Conv2D(64, (3, 3), activation='linear',padding='same'))
+fashion_model.add(MaxPooling2D((2, 2), padding='same'))
+fashion_model.add(Conv2D(64, (3, 3), activation='linear', padding='same'))
 fashion_model.add(LeakyReLU(alpha=0.1))
-fashion_model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
-fashion_model.add(Conv2D(128, (3, 3), activation='linear',padding='same'))
+fashion_model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+fashion_model.add(Conv2D(128, (3, 3), activation='linear', padding='same'))
 fashion_model.add(LeakyReLU(alpha=0.1))
-fashion_model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
+fashion_model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
 fashion_model.add(Flatten())
 fashion_model.add(Dense(128, activation='linear'))
 fashion_model.add(LeakyReLU(alpha=0.1))
 fashion_model.add(Dense(12, activation='softmax'))
 
-fashion_model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimizers.Adam(),metrics=['accuracy'])
+fashion_model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimizers.Adam(), metrics=['accuracy'])
 
 # fashion_model.summary()
 
-fashion_train = fashion_model.fit(X_train, y_train_hot, batch_size=batch,epochs=8,verbose=1,validation_data=(X_test, y_test_hot))
+fashion_train = fashion_model.fit(X_train, y_train_hot, batch_size=batch, epochs=8, verbose=1, validation_data=(X_test, y_test_hot))
+
 
