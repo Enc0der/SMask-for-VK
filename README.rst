@@ -40,7 +40,7 @@ Then, every file is converted into spectrogram, which are saved to pitchdf. Then
 Model
 ------------
 
-Model used in this profect is a CNN.
+Model used in this project is a CNN.
 The brief spectrograms from center of the audio sample will be used to train the CNN to predict pitch.
 
 Please note
