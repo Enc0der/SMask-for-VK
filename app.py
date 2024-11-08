@@ -13,7 +13,6 @@ import librosa
 import pandas as pd
 from io import StringIO
 import telebot
-# import config
 from pydub import AudioSegment
 import cv2
 from sklearn.preprocessing import normalize
@@ -293,6 +292,5 @@ def making_return_video():
     video.close()
 
 
-# Start the bot's polling
 bot.infinity_polling()
 

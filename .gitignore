@@ -2,3 +2,4 @@
 config.py
 #settings.json
 settings.json
+.DS_store
